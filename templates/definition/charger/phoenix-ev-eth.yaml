@@ -37,6 +37,8 @@ params:
   - name: modbus
     choice: ["tcpip"]
     id: 255
+  - name: cardreader
+    choice: ["Automatic", "Off", "On"]
 render: |
   type: phoenix-ev-eth
   {{- include "modbus" . }}
