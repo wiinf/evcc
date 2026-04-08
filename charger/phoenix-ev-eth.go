@@ -37,6 +37,7 @@ import (
 type PhoenixEVEth struct {
 	conn     *modbus.Connection
 	isWallbe bool
+	cardReader int
 }
 
 const (
@@ -56,6 +57,10 @@ const (
 	phxRegEnergyWh        = 904  // Holding, 32bit, Wh (2), Wallbe: 16bit (1)
 	phxRegEnergyWallbe    = 2980 // Holding, 64bit, Wh (4)
 	phxRegChargedEnergyEx = 3376 // Holding, 64bit, Wh (4)
+
+	cardReaderAutodetect  = 0
+	cardReaderDisabled    = 1
+	cardReaderEnabled 	  = 2
 )
 
 func init() {
@@ -112,8 +117,8 @@ func NewPhoenixEVEth(ctx context.Context, uri string, slaveID uint8) (api.Charge
 		voltages = wb.voltages
 	}
 
-	// check card reader enabled
-	if b, err := wb.conn.ReadCoils(phxRegCardEnabled, 1); err == nil && b[0] == 1 {
+	// check card reader enabled	
+	if b, err := wb.conn.ReadCoils(phxRegCardEnabled, 1); err == nil && (((b[0] == 1) && wb.cardReader == cardReaderAutodetect) || wb.cardReader == cardReaderEnabled) {
 		identify = wb.identify
 	}
 
